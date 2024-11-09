@@ -1,10 +1,9 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { MessageDocument } from './schemas/message.schema';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/user/schemas/user.schema';
-import { Injectable, UseGuards } from '@nestjs/common';
-import { SessionGuard } from 'src/guards/session.guard';
+import { UseGuards } from '@nestjs/common';
 import { WebSocketGuard } from 'src/guards/web-socket.guard';
 import { SupportRequestService } from './support-request.service';
 import { SupportRequestDocument } from './schemas/support-request.schema';

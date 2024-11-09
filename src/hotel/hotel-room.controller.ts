@@ -4,11 +4,8 @@ import {
     Get,
     Post,
     Body,
-    Delete,
-    Patch,
     ValidationPipe,
     UsePipes,
-    NotFoundException,
     ParseIntPipe,
     Query,
     Put,
@@ -20,20 +17,19 @@ import { User } from '../decorators/user.decorator';
 import { HotelRoomService } from './hotel-room.service';
 import { Role } from 'src/user/schemas/user.schema';
 import { HotelRoomCreateDto } from './dto/hotel-room-create.dto';
-import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/files/files.service';
-import { v4 as uuidv4 } from 'uuid';
 import * as mongoose from 'mongoose';
 import { HotelRoomUpdateDto } from './dto/hotel-room-update.dto';
 import { IReqUser } from 'src/common/common.interfaces';
 
-@Controller('common/hotel-rooms')
+@Controller()
 export class HotelRoomController {
     constructor(private readonly hotelRoomService: HotelRoomService,
         private readonly filesService: FilesService
     ) { }
 
-    @Get()
+    @Get('common/hotel-rooms')
     async findHotelRoom(
         @Query('limit', ParseIntPipe) limit: number,
         @Query('offset', ParseIntPipe) offset: number,
@@ -58,8 +54,7 @@ export class HotelRoomController {
         }));
     }
 
-
-    @Get(':id')
+    @Get('common/hotel-rooms/:id')
     async get(@Param('id') id: string) {
         const hotelRoom = await this.hotelRoomService.findById(id);
         return {
@@ -74,8 +69,7 @@ export class HotelRoomController {
         }
     }
 
-
-    @Post()
+    @Post('admin/hotel-rooms')
     @Roles([Role.admin])
     @UsePipes(new ValidationPipe())
     @UseInterceptors(FilesInterceptor('images'))
@@ -105,7 +99,7 @@ export class HotelRoomController {
         }
     }
 
-    @Put(':id')
+    @Put('admin/hotel-rooms/:id')
     @Roles([Role.admin])
     @UsePipes(new ValidationPipe({ transform: true }))
     @UseInterceptors(FilesInterceptor('images'))

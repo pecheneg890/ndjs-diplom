@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseBoolPipe, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, ParseBoolPipe, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/user/schemas/user.schema';
 import { ClientRequestDto } from './dto/client-request.dto';
@@ -83,7 +83,10 @@ export class ChatController {
 
     @Get('common/support-requests/:id/messages')
     @Roles([Role.client, Role.manager])
-    async getMessages(@Param('id') supportRequestId: string) {
+    async getMessages(@Param('id') supportRequestId: string, @User() user: IReqUser) {
+        //если роль client, то проверяем что пользователь создал обращение
+        await this.supportService.checkAuthor(user, supportRequestId);
+
         const messages = await this.supportService.getMessages(supportRequestId);
 
         return messages.map(el => ({
@@ -106,6 +109,9 @@ export class ChatController {
         @Param('id') supportRequestId: string,
         @Body() dto: ClientRequestDto,
         @User() user: IReqUser) {
+
+        //если роль client, то проверяем что пользователь создал обращение
+        await this.supportService.checkAuthor(user, supportRequestId);
 
         const message = await this.supportService.sendMessage(
             {
@@ -133,6 +139,7 @@ export class ChatController {
         @Param('id') supportRequestId: string,
         @User() user: IReqUser,
         @Body() dto: MarkReadDto) {
+
         await this.clientService.markMessagesAsRead({
             user: user.id,
             supportRequest: supportRequestId,
@@ -145,7 +152,7 @@ export class ChatController {
     }
 
     @Get('common/support-requests/:id/unread')
-    @Roles([Role.client, Role.manager])
+    @Roles([Role.client])
     async getUnreadCount(@Param('id') supportRequestId: string) {
         return this.clientService.getUnreadCount(supportRequestId);
     }

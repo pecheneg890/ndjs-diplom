@@ -58,8 +58,7 @@ export class SupportRequestClientService implements ISupportRequestClientService
 
     async getUnreadCount(supportRequest: ID): Promise<number> {
         const request = await this.supportRequestModel.findById(supportRequest)
-            .populate('messages')
-            .populate('messages.author')
+            .populate({ path: 'messages', populate: 'author' })
             .exec();
 
         if (!request) throw new NotFoundException(CHAT_NOT_FOUND);

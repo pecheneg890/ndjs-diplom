@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { GetChatListParams, ISupportRequestService, SendMessageDto } from './chat.interfaces';
 import { ID } from 'src/common/common.types';
 import { Message, MessageDocument } from './schemas/message.schema';
@@ -8,6 +8,8 @@ import mongoose, { Model } from 'mongoose';
 import { CHAT_NOT_FOUND } from './chat.constants';
 import { Types } from "mongoose";
 import { ChatGateway } from './chat.gateway';
+import { IReqUser } from 'src/common/common.interfaces';
+import { Role } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class SupportRequestService implements ISupportRequestService {
@@ -61,5 +63,21 @@ export class SupportRequestService implements ISupportRequestService {
     subscribe(handler: (supportRequest: SupportRequestDocument, message: MessageDocument) => void): () => void {
         this.messageSubscribers.push(handler);
         return () => { };
+    }
+
+    async getRequest(supportRequest: ID): Promise<SupportRequestDocument> {
+        const request = await this.supportRequestModel.findById(supportRequest);
+        if (!request) throw new NotFoundException(CHAT_NOT_FOUND);
+        return request;
+    }
+
+
+    async checkAuthor(user: IReqUser, supportRequest: ID) {
+        if (user.role !== Role.client) return;
+
+        const request = await this.getRequest(supportRequest);
+        if (request.user._id.toString() !== user.id) {
+            throw new ForbiddenException();
+        }
     }
 }

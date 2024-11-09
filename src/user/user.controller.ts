@@ -59,7 +59,6 @@ export class UserController {
 		return this.findAll(name, email, contactPhone, limit, offset);
 	}
 
-
 	private async findAll(
 		name: string,
 		email: string,

@@ -16,8 +16,7 @@ export class SupportRequestEmployeeService implements ISupportRequestEmployeeSer
 
     async markMessagesAsRead(params: MarkMessagesAsReadDto) {
         const supportRequest = await this.supportRequestModel.findById(params.supportRequest)
-            .populate('messages')
-            .populate('messages.author')
+            .populate({ path: 'messages', populate: 'author' })
             .exec();
 
         if (!supportRequest) throw new NotFoundException(CHAT_NOT_FOUND);
@@ -34,8 +33,7 @@ export class SupportRequestEmployeeService implements ISupportRequestEmployeeSer
 
     async getUnreadCount(supportRequest: ID): Promise<number> {
         const request = await this.supportRequestModel.findById(supportRequest)
-            .populate('messages')
-            .populate('author')
+            .populate({ path: 'messages', populate: 'author' })
             .exec();
 
         if (!request) throw new NotFoundException(CHAT_NOT_FOUND);

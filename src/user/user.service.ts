@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { User, UserDocument } from './schemas/user.schema';
+import { Role, User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserCreateDto } from './dto/user-create.dto';
@@ -10,7 +10,11 @@ import { ID } from 'src/common/common.types';
 
 @Injectable()
 export class UserService implements IUserService {
-	constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+	constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
+
+		//создание первого пользователя в БД
+		this.createFirstUser();
+	}
 
 	async findById(id: ID): Promise<UserDocument> {
 		const user = await this.userModel.findById(id).exec();
@@ -54,6 +58,20 @@ export class UserService implements IUserService {
 			passwordHash: await hash(dto.password, salt)
 		};
 		return this.userModel.create(newUser);
+	}
+
+	async createFirstUser() {
+		const userCount = await this.userModel.countDocuments();
+		if (userCount) return;
+
+		await this.create({
+			name: 'admin',
+			email: 'aaa@mail.ru',
+			password: '123',
+			contactPhone: '12345',
+			role: Role.admin
+		});
+		console.log('first user aaa@mail.ru was created');
 	}
 
 }

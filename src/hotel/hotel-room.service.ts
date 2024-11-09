@@ -25,9 +25,10 @@ export class HotelRoomService implements IHotelRoomService {
             hotel: params.hotel
         };
 
-        if (!params.isEnabled === undefined) {
+        if (params.isEnabled !== undefined) {
             searchParam.isEnabled = params.isEnabled;
         }
+
         return this.hotelRoomModel.find(searchParam).skip(params.offset).limit(params.limit).exec();
     }
 
