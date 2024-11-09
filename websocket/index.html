@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WebSocket demo</title>
+</head>
+
+<body>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="ws.js"></script>
+
+    <form>
+        <label for="loginId">Login:</label>
+        <input type="text" id="loginId" name="login"><br>
+
+        <label for="passwordId">Password:</label>
+        <input type="text" id="passwordId" name="password"><br>
+
+        <button type="button" onclick="connect()">Вход:</button> <br>
+    </form>
+
+    <div id="loginResp"></div><br>
+
+    <form>
+        <label for="chatId">Chat ID:</label>
+        <input type="text" id="chatId" name="chatId"><br>
+        <button type="button" onclick="subscribeToChat()">Подписаться на чат</button> <br>
+    </form>
+
+    <div id="status"></div><br>
+    <div id="error"></div><br>
+
+    <table id="messages" border="1">
+        <tr>
+            <td>Ид сообщения</td>
+            <td>Время создания</td>
+            <td>Текст сообщения</td>
+            <td>Автор сообщения</td>
+        </tr>
+    </table>
+</body>
+
+</html>

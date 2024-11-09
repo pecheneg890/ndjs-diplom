@@ -1,0 +1,29 @@
+version: "3"
+services:
+  booking:
+    build: .
+    container_name: booking
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      MONGO_LOGIN: example_user
+      MONGO_PASS: example_password
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_DB: ndjs-diplom
+      SESSION_SECRET: example_secret
+    volumes:
+      - ./uploads:/opt/app/uploads
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: ndjs-diplom
+    volumes:
+      - ./mongodb/db:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - 27017:27017
