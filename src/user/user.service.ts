@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Role, User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -27,7 +27,7 @@ export class UserService implements IUserService {
 	async findByEmail(email: string): Promise<UserDocument> {
 		const user = await this.userModel.findOne({ email }).exec();
 		if (!user) {
-			throw new NotFoundException(USER_NOT_FOUND);
+			throw new UnauthorizedException(USER_NOT_FOUND);
 		}
 		return user;
 	}
@@ -41,23 +41,23 @@ export class UserService implements IUserService {
 	}
 
 	async create(dto: UserCreateDto): Promise<UserDocument> {
-		let oldUser;
 		try {
-			oldUser = await this.findByEmail(dto.email);
-		} catch (e) { }
-		if (oldUser) {
-			throw new BadRequestException(USER_ALREADY_EXIST);
-		}
+			const oldUser = await this.findByEmail(dto.email);
 
-		const salt = await genSalt(10);
-		const newUser: User = {
-			email: dto.email,
-			name: dto.name,
-			contactPhone: dto.contactPhone,
-			role: dto.role,
-			passwordHash: await hash(dto.password, salt)
-		};
-		return this.userModel.create(newUser);
+			if (oldUser) {
+				throw new BadRequestException(USER_ALREADY_EXIST);
+			}
+			const salt = await genSalt(10);
+			const newUser: User = {
+				email: dto.email,
+				name: dto.name,
+				contactPhone: dto.contactPhone,
+				role: dto.role,
+				passwordHash: await hash(dto.password, salt)
+			};
+			const user = await this.userModel.create(newUser);
+			return user;
+		} catch (err) { throw new BadRequestException('Failed to create user', err.message); }
 	}
 
 	async createFirstUser() {

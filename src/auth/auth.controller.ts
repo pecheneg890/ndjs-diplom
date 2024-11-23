@@ -35,6 +35,6 @@ export class AuthController {
 	@Post('logout')
 	@Roles([Role.admin, Role.client, Role.manager])
 	async logout(@Req() request: Request) {
-		this.authService.logout(request);
+		await this.authService.logout(request);
 	}
 }

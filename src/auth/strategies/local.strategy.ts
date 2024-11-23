@@ -12,19 +12,16 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(username: string, password: string): Promise<any> {
-        console.log('validate Local Strategy ' + username + password);
-        // Выполняем проверку
-        let user;
         try {
-            user = await this.userService.findByEmail(username);
-        } catch (e) { }
-        if (!user) {
-            throw new UnauthorizedException();
+            // Выполняем проверку
+            const user = await this.userService.findByEmail(username);
+
+            const isCorrectPassword = await compare(password, user.passwordHash);
+            if (!isCorrectPassword) throw new UnauthorizedException('Invalid password');
+
+            return user;
+        } catch (error) {
+            throw new UnauthorizedException('Validation error', error.message);
         }
-
-        const isCorrectPassword = await compare(password, user.passwordHash);
-        if (!isCorrectPassword) throw new UnauthorizedException();
-
-        return user;
     }
 }

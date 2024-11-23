@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserCreateDto } from '../user/dto/user-create.dto';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './dto/login.dto';
@@ -19,20 +19,23 @@ export class AuthService {
 	}
 
 	async login(email: string) {
-		const user = await this.userService.findByEmail(email);
-		if (!user) throw new UnauthorizedException(USER_NOT_FOUND);
+		try {
+			const user = await this.userService.findByEmail(email);
 
-		return {
-			email: user.email,
-			name: user.name,
-			contactPhone: user.contactPhone
-		};
+			return {
+				email: user.email,
+				name: user.name,
+				contactPhone: user.contactPhone
+			};
+		} catch (err) {
+			throw new UnauthorizedException('Login error', err.message);
+		}
 	}
 
 	async logout(request: Request) {
 		return new Promise<void>((resolve, reject) => {
 			request.logOut((err) => {
-				if (err) reject(err.toString());
+				if (err) { throw new BadRequestException('Logout error', err.toString()); }
 				else resolve();
 			});
 		});
